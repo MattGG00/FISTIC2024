@@ -1,8 +1,14 @@
 import streamlit as st
 import pandas as pd
-import xlsxwriter
 import io
 
+def convert_to_excel(df):
+    output = io.BytesIO()
+    writer = pd.ExcelWriter(output, engine="xlsxwriter")
+    df.to_excel(writer, sheet_name="data",index=False)
+    # see: https://xlsxwriter.readthedocs.io/working_with_pandas.html
+    writer.close()
+    return output.getvalue()
 
 def main():
     st.title("Data Transformation")
@@ -18,18 +24,13 @@ def main():
             df['new_col'] = 1
             st.dataframe(df)
             st.balloons()
-        
-            buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                # Write each dataframe to a different worksheet.
-                df.to_excel(writer, index=False)
-                processed_data = buffer.getvalue()
-                st.download_button(
-                                    label="Scarica il file processato",
-                                    data=processed_data,
-                                    file_name="Ordinante2.xlsx",
-                                    mime="application/vnd.ms-excel"
-                                    )
+            st.download_button(
+                                label="download as Excel-file",
+                                data=convert_to_excel(df),
+                                file_name="data.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                key="excel_download",
+                                )
                 
 if __name__ == "__main__":
     main()
