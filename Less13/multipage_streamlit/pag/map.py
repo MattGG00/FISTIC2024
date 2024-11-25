@@ -16,34 +16,25 @@ def main():
 
     # Aggiunta di alcuni punti di interesse principali
     landmarks = {
-        "Colosseo": [41.8902, 12.4922],
-        "Basilica San Pietro": [41.9022, 12.4539],
-        "Pantheon": [41.8986, 12.4769],
-        "Fontana di Trevi": [41.9009, 12.4833],
-        "Piazza Navona": [41.8992, 12.4730]
-    }
+                "Colosseo": [41.8902, 12.4922],
+                "Basilica San Pietro": [41.9022, 12.4539],
+                "Pantheon": [41.8986, 12.4769],
+                "Fontana di Trevi": [41.9009, 12.4833],
+                "Piazza Navona": [41.8992, 12.4730]
+                }
 
-    # Creazione del cluster di markers
     marker_cluster = plugins.MarkerCluster(control=False)
-
-    # Aggiunta dei markers per ogni punto di interesse
     for name, coords in landmarks.items():
         folium.Marker(
-            coords,
-            popup=name,
-            icon=folium.Icon(color='red', icon='info-sign')
-        ).add_to(marker_cluster)
+                    coords,
+                    popup=name,
+                    icon=folium.Icon(color='red', icon='info-sign')
+                    ).add_to(marker_cluster)
 
-    # Aggiunta del cluster alla mappa
     m.add_child(marker_cluster)
-
-    # Aggiunta di una mini mappa
     minimap = plugins.MiniMap()
     m.add_child(minimap)
-
-    # Aggiunta del controllo per i layer
     folium.LayerControl().add_to(m)
-
     # Visualizzazione con Streamlit
     folium_static(m, width=800, height=600)
 

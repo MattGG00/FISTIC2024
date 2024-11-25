@@ -1,8 +1,8 @@
 import streamlit as st
 from PIL import Image
 from streamlit_option_menu import option_menu
-#pages in python format
-from pag import contacts, history, home,map, datavisualisation
+import importlib
+import os
 
 st.set_page_config(
                     page_title="Template Project",
@@ -10,23 +10,37 @@ st.set_page_config(
                     layout="wide",
                     )
 
-page = [
-        "Home", 
-        "History", 
-        "Data Visualisation",
-        "Maps", 
-        "Contacts",
-        ]
+def get_pages():
+    pages = []
+    icons = []
+    modules = []
+    
+    BLACKLIST_FILES = ['__init__', 'test']  # aggiungi qui i file da escludere    
+    # page_order = []
+    page_order = ['home', 'history', 'datavisualisation', 'map', 'contacts']
 
-#bootstrap Icon
-icons = [
-        "bi-house", 
-        "bi-hourglass-split", 
-        "bi-card-image", 
-        "bi-map",#"bi-geo-alt"
-        "bi-envelope",
-        ]
+    files = [f[:-3] for f in os.listdir('pag') if f.endswith('.py') and f[:-3] not in BLACKLIST_FILES]
+    files.sort(key=lambda x: page_order.index(x) if x in page_order else len(page_order))
+    
+    # Mapping icon 
+    icon_mapping = {
+                    'home': 'bi-house',
+                    'history': 'bi-hourglass-split',
+                    'datavisualisation': 'bi-card-image',
+                    'map': 'bi-map',
+                    'contacts': 'bi-envelope'
+                    }
+    
+    for file in files:
+        page_name = file.capitalize()
+        pages.append(page_name)        
+        icons.append(icon_mapping.get(file, 'bi-file'))        
+        module = importlib.import_module(f'pag.{file}')
+        modules.append(module)
+    
+    return pages, icons, modules
 
+pages, icons, modules = get_pages()
 
 class MultiApp:
     def __init__(self):
@@ -41,31 +55,20 @@ class MultiApp:
     def main():
         with st.sidebar:
             app = option_menu(
-                            menu_title = "Menu",
-                            options = page,
-                            icons = icons,
-                            #orientation = "horizontal",
-                            menu_icon = "bi-list",
-                            default_index = 0,
-                            styles = {
-                                    "container": {"padding": "5!important", "background-color": "black"},
-                                    "icon": {"color": "white", "font-size": "23px"},
-                                    "nav-link": {"color": "white", "font-size": "20 px", "text-align": "left", "margin": "0px" },
-                                    "nav-link-selected": {"color": "black", "background-color": "#9ac280"}
-                                    }
-                            )
-        if app == page[0]:
-            home.main()
-        if app == page[1]:
-            history.main()
-        if app == page[2]:
-            datavisualisation.main()
-        if app == page[3]:
-            map.main()
-        if app == page[4]:
-            contacts.main()
-
-##########################################################################################
+                                menu_title="Menu",
+                                options=pages,
+                                icons=icons,
+                                menu_icon="bi-list",
+                                default_index=0,
+                                styles={
+                                        "container": {"padding": "5!important", "background-color": "black"},
+                                        "icon": {"color": "white", "font-size": "23px"},
+                                        "nav-link": {"color": "white", "font-size": "20px", "text-align": "left", "margin": "0px"},
+                                        "nav-link-selected": {"color": "black", "background-color": "#9ac280"}
+                                        }
+                                        )        
+        selected_index = pages.index(app)
+        modules[selected_index].main()
 
 if __name__ == "__main__":
-    MultiApp.main()  
+    MultiApp.main()
