@@ -7,7 +7,7 @@ import os
 
 st.set_page_config(
                     page_title="Template Project",
-                    page_icon=Image.open("icon_site.png"),
+                    page_icon=Image.open("img/icon_site.png"),
                     layout="wide",
                     )
 
@@ -52,9 +52,8 @@ def get_pages():
         page_name = file.capitalize()
         pages.append(page_name)        
         icons.append(icon_mapping.get(file, 'bi-file'))        
-        module = importlib.import_module(f'pag.{file}')
+        module = importlib.import_module(f'{PAGES}.{file}')
         modules.append(module)
-    
     return pages, icons, modules
 
 pages, icons, modules = get_pages()
