@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 from streamlit_option_menu import option_menu
 import importlib
+import joblib
 import os
 
 st.set_page_config(
@@ -10,16 +11,32 @@ st.set_page_config(
                     layout="wide",
                     )
 
+@st.cache_resource
+def load_models():
+    models = {}    
+    model_configs = {
+                    'titanic': 'models/titanic_pipe.pkl',
+                    #'iris': 'models/iris_pipe.pkl'  
+                    }
+    for model_name, model_path in model_configs.items():
+        if os.path.exists(model_path):
+            models[model_name] = joblib.load(model_path)
+        else:
+            st.error(f"File modello non trovato: {model_path}")
+    return models
+
 def get_pages():
+
+    PAGES = 'pag' # cartella con le pagine, non usare pages!!!
     pages = []
     icons = []
     modules = []
     
     BLACKLIST_FILES = ['__init__', 'test']  # aggiungi qui i file da escludere    
     # page_order = []
-    page_order = ['home', 'history', 'datavisualisation', 'map', 'contacts']
+    page_order = ['home', 'history', 'datavisualisation', 'map', 'data','titanic']
 
-    files = [f[:-3] for f in os.listdir('pag') if f.endswith('.py') and f[:-3] not in BLACKLIST_FILES]
+    files = [f[:-3] for f in os.listdir(PAGES) if f.endswith('.py') and f[:-3] not in BLACKLIST_FILES]
     files.sort(key=lambda x: page_order.index(x) if x in page_order else len(page_order))
     
     # Mapping icon 
@@ -28,7 +45,7 @@ def get_pages():
                     'history': 'bi-hourglass-split',
                     'datavisualisation': 'bi-card-image',
                     'map': 'bi-map',
-                    'contacts': 'bi-envelope'
+                    'data': 'bi-database-down',
                     }
     
     for file in files:
@@ -53,6 +70,9 @@ class MultiApp:
                         })
 
     def main():
+        # Carica i modelli all'avvio
+        st.session_state['models'] = load_models()
+
         with st.sidebar:
             app = option_menu(
                                 menu_title="Menu",
